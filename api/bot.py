@@ -5,20 +5,29 @@ from flask import Flask, request
 
 app = Flask(__name__)
 
+# Получаем токен бота из переменных окружения
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 bot = telebot.TeleBot(BOT_TOKEN)
 
 user_languages = {}
 user_phone_numbers = {}
-# Словарь для хранения статуса пользователя (регистрация или логин)
 user_statuses = {}
 
 # Установите вебхук
 @app.route('/webhook', methods=['POST'])
 def webhook():
     update = request.get_json()
-    bot.process_new_updates([telebot.types.Update.de_json(update)])
-    return '', 200
+    if update:  # Проверяем, что обновление не пустое
+        bot.process_new_updates([telebot.types.Update.de_json(update)])
+    return '', 200  # Возвращаем 200 OK
+
+# Установите вебхук
+@app.route('/set_webhook', methods=['GET'])
+def set_webhook():
+    bot.remove_webhook()  # Удаляем предыдущий вебхук, если он установлен
+    webhook_url = f'https://glovo-food-delivery-39we4s6it-tsaigetsus-projects.vercel.app/webhook'  # Замените на URL вашего проекта на Vercel
+    bot.set_webhook(url=webhook_url)  # Устанавливаем новый вебхук
+    return 'Webhook set', 200
 
 # Начальный хэндлер для выбора языка
 @bot.message_handler(commands=['start', 'hello'])
@@ -130,13 +139,6 @@ def handleCodeInput(message):
     code = message.text
     # Здесь можно добавить логику для проверки кода
     bot.send_message(message.chat.id, f"Вы ввели код: {code}.")  # Например, подтверждение кода
-
-# Установите вебхук
-@app.route('/set_webhook', methods=['GET'])
-def set_webhook():
-    bot.remove_webhook()  # Удаляем предыдущий вебхук, если он установлен
-    bot.set_webhook(url=f'https://<your-vercel-project>.vercel.app/webhook')  # Замените на URL вашего проекта на Vercel
-    return 'Webhook set', 200
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
