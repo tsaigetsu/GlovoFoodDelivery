@@ -1,8 +1,12 @@
+#api/bot.py
+
 import os
 import telebot
 from telebot import types
 from flask import Flask, request
 import logging
+
+print(os.environ.get('BOT_TOKEN'))
 
 app = Flask(__name__)
 
@@ -149,4 +153,4 @@ def handleCodeInput(message):
     bot.send_message(message.chat.id, f"Вы ввели код: {code}.")  # Например, подтверждение кода
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
