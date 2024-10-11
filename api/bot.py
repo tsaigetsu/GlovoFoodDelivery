@@ -20,11 +20,14 @@ user_statuses = {}
 # Установите вебхук
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    update = request.get_json()
-    logging.info(f"Received update: {update}")  # Логируем полученное обновление
-    if update:  # Проверяем, что обновление не пустое
-        bot.process_new_updates([telebot.types.Update.de_json(update)])
-    return '', 200  # Возвращаем 200 OK
+    try:
+        update = request.get_json()
+        if update:  # Проверяем, что обновление не пустое
+            bot.process_new_updates([telebot.types.Update.de_json(update)])
+        return '', 200  # Возвращаем 200 OK
+    except Exception as e:
+        logging.error(f'Error processing webhook: {e}')
+        return 'Internal Server Error', 500
 
 # Установите вебхук
 @app.route('/set_webhook', methods=['GET'])
