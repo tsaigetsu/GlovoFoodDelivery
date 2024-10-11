@@ -5,6 +5,9 @@ from flask import Flask, request
 
 app = Flask(__name__)
 
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
+
 # Получаем токен бота из переменных окружения
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -17,6 +20,7 @@ user_statuses = {}
 @app.route('/webhook', methods=['POST'])
 def webhook():
     update = request.get_json()
+    logging.info(f"Received update: {update}")  # Логируем полученное обновление
     if update:  # Проверяем, что обновление не пустое
         bot.process_new_updates([telebot.types.Update.de_json(update)])
     return '', 200  # Возвращаем 200 OK
